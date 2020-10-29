@@ -1,0 +1,46 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.css">
+
+<style>
+  div {
+    margin: 10px 20px 10px 20px;
+  }
+  p {
+    margin: 30px 0 0 0;
+    padding: 0;
+  }
+  td {
+    text-align: left;
+  }
+
+  label.control-label {
+    width: 100px;
+  }
+
+  h1 {
+      margin: 20px 0 20px 0;
+  }
+</style>
+
+  <div class="container">
+    <!-- <button type="button" class="btn btn-danger btn-sm" style="float: right;" onclick="window.location.href='/logout'">Log out</button> -->
+    <h1 style="text-align: center;">Logs</h1>
+    <button type="button" class="btn btn-success" onclick="location.href='/'">BACK</button>
+    <table >
+        {% for log in log_list %}
+            <tr>
+                <td>{{log}}</td>
+            </tr>
+        {% endfor%}
+    </table>
+
+
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js'></script>  
+
+{% endblock %}

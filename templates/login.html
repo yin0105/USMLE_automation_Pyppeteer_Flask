@@ -1,0 +1,89 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css">
+
+<style>
+  @media screen and (min-width: 768px) {
+    form {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+ 
+    form div,
+    .input-holder {
+        width: 100%;
+    }
+ 
+  }
+  div {
+    margin: 10px 20px 10px 20px;
+  }
+  p {
+    margin: 30px 0 0 0;
+    padding: 0;
+  }
+  td {
+    text-align: center;
+  }
+  button {
+    margin: 0 10px;
+  }
+
+  label.control-label {
+    width: 100px;
+  }
+
+  .div-login {
+    width: 500px;
+    height: 300px;
+    background-color: rgb(191, 208, 255);
+    padding: 50px;
+    border-radius: 30px;
+    
+    margin: 200px;
+  }
+
+  body {
+    background-color: rgb(255, 246, 228);
+  }
+
+  input[type='submit'] {
+    margin: 30px;
+  }
+</style>
+
+  <div class="container" style="justify-content:center; display: flex; height: 600px;">
+    <div class="div-login">
+      <form action="" method="post" class="form" role="form">
+        {{ form.csrf_token() }}
+        <div class="form-inline">
+          {{ wtf.form_field(form.name, class='form-control') }}
+        </div>
+        <div class="form-inline">
+          {{ wtf.form_field(form.password, class='form-control') }}
+        </div>
+        <div class="form-inline" style="justify-content:center; display: flex">
+          {{ wtf.form_field(form.submit, class='form-control btn-warning', style='width: 150px' ) }}
+        </div>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+              {% for message in messages %} 
+                <span style="color:#a94442; margin: 20px 0 10px 40px;">{{ message }}</span>
+              {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </form>
+    </div>
+  </div>
+
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script><!--https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js-->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js'></script>  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
+  
+  
+{% endblock %}

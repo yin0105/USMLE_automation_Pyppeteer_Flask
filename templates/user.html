@@ -1,0 +1,235 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css">
+
+<script>
+  var exam_index = 0, country = "0";
+
+  function renumber_tbl_location(){ 
+    var index = 0;
+    $(".tr_location").each(function(){
+      $(this).children("td:first").text(++index);        
+    });
+  }
+
+  function remove_row(tt) {
+    $(tt).parents("tr").remove();
+    renumber_tbl_location();
+  }
+</script>
+
+
+<style>
+  @media screen and (min-width: 768px) {
+    form {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+ 
+    form div,
+    .input-holder {
+        width: 100%;
+    }
+ 
+    /* replace "1" with the number of the first field that you want to align horizontally */
+    .form>*:nth-child(1), .input-holder:nth-of-type(1),
+    /* replace "2" with the number of the second field that you want to align horizontally */
+    .form>*:nth-child(2), .input-holder:nth-of-type(2) {
+        width: 47%;
+    }
+  }
+  div {
+    margin: 10px 20px 10px 20px;
+  }
+  p {
+    margin: 30px 0 0 0;
+    padding: 0;
+  }
+  td {
+    text-align: center;
+  }
+  button {
+    margin: 0 10px;
+  }
+
+  label.control-label {
+    width: 100px;
+  }
+</style>
+
+  <div class="container">
+    <h1 style="text-align: center;">
+      {% if user %}
+          Edit User
+        {% else %}
+          Add User
+        {% endif %}      
+    </h1>
+    <form action="" method="post" class="form" role="form">
+      {{ form.csrf_token() }}
+      <input type="hidden" name="type_" value="save">
+      <div class="form-inline" style="display: none;">
+        {% if user %}
+          {{ wtf.form_field(form.id, class='form-control', value=user.id) }}
+        {% else %}
+          {{ wtf.form_field(form.id, class='form-control')}}
+        {% endif %}
+      </div>
+
+      <div class="form-inline">
+        {% if user %}
+          {{ wtf.form_field(form.name, class='form-control', placeholder='Write down user name', value=user.name) }}
+        {% else %}
+          {{ wtf.form_field(form.name, class='form-control', placeholder='Write down user name') }}
+        {% endif %}
+      </div>
+      <div class="form-inline">
+        {% if user %}
+          {{ wtf.form_field(form.email, class='form-control', placeholder='your@email.com', value=user.email) }}
+        {% else %}
+          {{ wtf.form_field(form.email, class='form-control', placeholder='your@email.com') }}
+        {% endif %}        
+      </div>
+      <div class="form-inline">
+        {% if user %}
+          {{ wtf.form_field(form.phone, class='form-control', placeholder='+12126712234', value=user.phone) }}
+        {% else %}
+          {{ wtf.form_field(form.phone, class='form-control', placeholder='+12126712234') }}
+        {% endif %}        
+      </div>
+      <div class="form-inline">
+        {{ wtf.form_field(form.exam, class='form-control') }}
+      </div>
+      <div class="form-inline">
+        {% if user %}
+          {{ wtf.form_field(form.dates, class='form-control date', value=user.dates) }}
+          <script>var exam_index = "{{user.exam}}", country = "{{user.country}}"; console.log("exam = " + exam_index)</script>
+        {% else %}
+          {{ wtf.form_field(form.dates, class='form-control date') }}
+        {% endif %}        
+      </div>
+      <div class="form-inline">
+        {{ wtf.form_field(form.country, class='form-control') }}        
+      </div>
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          {% for message in messages %} 
+            <span style="color:#a94442; margin: 20px 0 10px 40px;">{{ message }}</span>
+          {% endfor %}
+      {% endif %}
+    {% endwith %}
+      <p >
+        <div class="form-inline">
+          <button type="button" class="btn btn-success" id="btn_add_row">Add Row</button>
+          <button type="submit" class="btn btn-info">Save</button>
+          <button type="button" class="btn btn-warning" id="btn_go_back">Go Back</button>
+        </div>
+      <div class="form-inline">
+        <table class="table table-striped table-bordered">
+          <thead>
+            <th>
+              <td>Location</td>
+              <td>Center Number</td>
+              <td>Action</td>
+            </th>
+          </thead>
+          <tbody id="tbd_locations">
+            {% if user %}
+              {% for key, location_list in user.locations.items() %}
+                {% for location in location_list %}
+                  <tr  class='tr_location'>
+                    <td></td>
+                    <td>
+                      <input type="text" name="td_location[]" value="{{location.l}}" style="width: 100%;">
+                    </td>
+                    <td>
+                      <input type="text" name="td_center_number[]" value="{{location.c}}" style="width: 100%;">
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-danger" onClick="remove_row(this)">Delete</button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                {% endfor %}
+            {% else %}
+              {% for location in form.locations %}
+              <tr  class='tr_location'>
+                <td></td>
+                <td>
+                  <input type="text" name="td_location[]" value="{{location.location}}" style="width: 100%;">
+                </td>
+                <td>
+                  <input type="text" name="td_center_number[]" value="{{location.center_number}}" style="width: 100%;">
+                </td>
+                <td>
+                  <button type="button" class="btn btn-danger" onClick="remove_row(this)">Delete</button>
+                </td>
+              </tr>
+            {% endfor %}
+            {% endif %}
+            
+          </tbody>          
+        </table>
+      </div>
+    </form>
+  </div>
+
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script><!--https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js-->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js'></script>  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
+  
+  
+  <script id="rendered-js" >
+    $('.date').datepicker({
+      multidate: true,
+      format: 'dd-mm-yyyy' 
+    });
+
+    window.console = window.console || function(t) {};
+    if (document.location.search.match(/type=embed/gi)) {
+      window.parent.postMessage("resize", "*");
+    }
+  </script>
+
+  <script type="text/javascript">        
+    $(document).ready(function(){  
+      $("#exam").prop("selectedIndex", exam_index);
+      get_countries_list(country);
+      renumber_tbl_location();
+      $("#exam").on('change', get_countries_list );
+
+      function get_countries_list(country="0") {
+        $.ajax({
+            url: "/ajax_get_countries_list/" + $("#exam")[0].selectedIndex+"?country="+country,
+            type: "GET",
+            datatype: "text",
+    
+            success: function (result) { 
+              $("#country").html(result);
+            },
+            error: function (error) {
+              
+            }       
+        });        
+      }       
+
+      $("#btn_add_row").on("click", function(){
+        str = "<tr class='tr_location'><td></td><td><input type='text' name='td_location[]' style='width:100%;'></td>";
+        str += "<td><input type='text' name='td_center_number[]' style='width:100%;'></td>";
+        str += "<td><button type='button' class='btn btn-danger' onClick='remove_row(this)'>Delete</button></td></tr>";
+        $("#tbd_locations").append(str);
+        renumber_tbl_location();
+      });  
+
+      $("#btn_go_back").on("click", function(){
+        window.location.href = "/";
+      }); 
+    });
+        
+  </script>
+{% endblock %}

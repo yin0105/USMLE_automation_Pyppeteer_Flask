@@ -1,0 +1,219 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.css">
+
+<script>
+    var cur_row;
+    function renumber_tbl_users(){ 
+        var index = 0;
+        $(".tr_user").each(function(){
+            $(this).children("td:first").text(++index);        
+        });
+    }
+
+    function remove_row(tt, user_id) {
+        $.ajax({
+            url: "/del_user/" + user_id,
+            type: "GET",
+            datatype: "text",        
+            success: function (result) { 
+
+            },
+            error: function (error) {
+                
+            }       
+        }); 
+        $(tt).parents("tr").remove();
+        renumber_tbl_users();
+    }
+</script>
+<style>
+  div {
+    margin: 10px 20px 10px 20px;
+  }
+  p {
+    margin: 30px 0 0 0;
+    padding: 0;
+  }
+  td {
+    text-align: center;
+  }
+  td button {
+    margin: 0 5px;
+  }
+
+  label.control-label {
+    width: 100px;
+  }
+
+  h1 {
+      margin: 20px 0 20px 0;
+  }
+</style>
+
+  <div class="container">
+    <button type="button" class="btn btn-danger btn-sm" style="float: right;" onclick="window.location.href='/logout'">Log out</button>
+    <h1 style="text-align: center;">Admin Panel</h1>
+    <form action="" method="post" class="form" role="form">  
+        <input type="hidden" name="type_" value="edit">      
+        <div class="form-inline">
+            <button type="button" class="btn btn-success" id="btn_add_user" onclick="window.location.href='/add_user?r='+Math.random()">Add User</button>
+        </div>
+        <div>
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <th>
+                    <td>Name</td>
+                    <td>Status</td>
+                    <td>Action</td>
+                    </th>
+                </thead>
+                <tbody id="tbd_locations">
+                    {% for user in users %}
+                    <tr class="tr_user">     
+                        <td></td>               
+                        <td>{{user.name}}</td>
+                        <td class="td_status">
+                            {% if user.status == 2 %}
+                                <span style="color: green">Sended</span>
+                            {% elif user.status == 1 %}
+                                <span style="color: blue">Monitoring</span>
+                            {% else %}
+                                <span style="color:red">Stoped</span>
+                            {% endif%}
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="start_proxy(this, '{{user.id}}')">START</button>
+                            <button type="button" class="btn btn-warning" onclick="stop_proxy(this, '{{user.id}}')">STOP</button>
+                            <button type="button" class="btn btn-success" onclick="edit_user('{{user.id}}')">EDIT</button>
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal" onclick="cur_row = this; cur_user_id = '{{user.id}}'">DELETE</button>
+                            <button type="button" class="btn btn-info" onclick="view_log('{{user.id}}')">VIEW LOGS</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>            
+            </table>            
+        </div>
+        <input type="hidden" name="user_id">
+    </form>
+
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">Warning</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-danger" data-dismiss="modal" onclick="remove_row(cur_row, cur_user_id)">Yes</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js'></script>  
+
+    <script type="text/javascript">    
+        setInterval(get_user_status,2000); 
+
+        $(document).ready(function(){
+            renumber_tbl_users();                 
+
+            $("#btn_add_row").on("click", function(){
+                // alert("add_row");
+                str = "<tr class='tr_location'><td></td><td><input type='text' name='td_location[]' style='width:100%;'></td>";
+                str += "<td><input type='text' name='td_state[]' style='width:100%;'></td>";
+                str += "<td><input type='text' name='td_city[]' style='width:100%;'></td>";
+                str += "<td><input type='text' name='td_miles[]' style='width:100%;'></td>";
+                str += "<td><button type='button' class='btn btn-danger' onClick='remove_row(this)'>Delete</button></td></tr>";
+                $("#tbd_locations").append(str);
+                renumber_tbl_location();
+            });    
+        });
+
+        function start_proxy(me, user_id) {
+            $(me).parents("tr").children("td[class='td_status']").html("<span style='color: blue'>Monitoring</span>");
+            $.ajax({
+                url: "/start_proxy/" + user_id,
+                type: "GET",
+                datatype: "text",
+        
+                success: function (result) { 
+
+                },
+                error: function (error) {
+                
+                }       
+            });  
+        }
+
+        function stop_proxy(me, user_id) {
+            $(me).parents("tr").children("td[class='td_status']").html("<span style='color: red'>Stoped</span>");
+            $.ajax({
+                url: "/stop_proxy/" + user_id,
+                type: "GET",
+                datatype: "text",
+        
+                success: function (result) { 
+                    
+                },
+                error: function (error) {
+                
+                }       
+            });
+        }
+
+        function edit_user(user_id) {
+            document.forms[0].action = "/edit_user"
+            document.forms[0].user_id.value = user_id
+            document.forms[0].submit()
+        }
+
+        function view_log(user_id) {
+            document.forms[0].action = "/view_log"
+            document.forms[0].user_id.value = user_id
+            document.forms[0].submit()
+        }
+
+        function get_user_status(){
+            $.ajax({
+                url: "/ajax_get_user_status",
+                type: "GET",
+                datatype: "text",
+        
+                success: function (result) {
+                    var st = result.split(",") 
+                    var trs = $("#tbd_locations tr td:nth-child(3)")
+                    for(var i = 0 ; i < trs.length ; i++ ) {
+                        switch (st[i]) {
+                            case '0':
+                                $(trs[i]).html('<span style="color:red">Stoped</span>')
+                                break;
+                            case '1':
+                                $(trs[i]).html('<span style="color: blue">Monitoring</span>')
+                                break;
+                            case '2':
+                                $(trs[i]).html('<span style="color: green">Sended</span>')
+                                break;
+                        }
+                    }
+                },
+                error: function (error) {
+                
+                }       
+            });
+        }
+            
+    </script>
+{% endblock %}
