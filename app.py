@@ -1,18 +1,24 @@
 #!/usr/bin/env python
+from asyncio.tasks import wait_for
+from time import sleep
 from flask import Flask, render_template, request, flash, redirect, url_for, g, session
 from flask_bootstrap import Bootstrap
+from sqlalchemy.sql.elements import Null
 from models import UserForm, LoginForm
 from flask_datepicker import datepicker
 from flask_sqlalchemy import SQLAlchemy
 from flask_mysqldb import MySQL
 import json
-from proxy import MyThread, proxy_status, proxies_list
+from proxy import MyThread, proxy_status, proxies_list, my_browser
+from proxy_2 import MyThread_2, user_list
 from sqlalchemy_serializer import SerializerMixin
 import requests
 from bs4 import BeautifulSoup
 import os
 import pprint
-
+import asyncio
+from pyppeteer import launch
+import time
 class Config(object):
     SECRET_KEY = '78w0o5tuuGex5Ktk8VvVDF9Pw3jv1MVE'
 
@@ -25,6 +31,7 @@ app.config['SECRET_KEY'] = "3489wfksf93r2k3lf9sdjkfe9t2j3krl"
 Bootstrap(app)
 datepicker(app)
 db = SQLAlchemy(app)
+# browser = Null
 
 state_dict = {}
 
@@ -95,6 +102,11 @@ class Proxies(db.Model, SerializerMixin):
     def __init__(self, proxy, bad):
         self.proxy = proxy
         self.bad = bad
+
+class Agency():
+    def __init__(self, user_id, stop_flag=False):
+        self.user_id = user_id
+        self.stop_flag = stop_flag
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -243,8 +255,11 @@ def ajax_get_user_status():
 
 @app.route('/start_proxy/<userId>', methods=['GET', 'POST'])
 def start_proxy(userId):
+    t_2 = MyThread_2("111")
+    t_2.start()
     try:
-        if proxy_status[userId] >= 1:
+        # if proxy_status[userId] >= 1:
+        if userId in user_list:
             return ""
     except:
         pass
@@ -257,8 +272,11 @@ def start_proxy(userId):
     user_ = User.query.filter_by(id=userId).first()
     user_.locations = json.loads(user_.locations)
 
-    t = MyThread(userId, user_.to_dict())
-    t.start()
+    user_list[userId] = user_.to_dict()
+
+
+    # t = MyThread(userId, user_.to_dict())
+    # t.start()
 
     return ""
         
@@ -270,6 +288,9 @@ def stop_proxy(userId):
     db.session.commit()
     return ""
 
+@app.route('/api', methods=['GET', 'POST'])
+def api():    
+    return user_list
 
 def status_initialize():
     db.session.query(User).update({User.status: 0}, synchronize_session = False)
@@ -315,9 +336,63 @@ def get_proxies_list():
                 db.session.commit()
     print(len(proxies_list))
 
+# async def get_browser():
+#     global my_browser
+#     if my_browser == Null:
+#         my_browser = await launch({"headless": False})
+#     return my_browser 
+
+
+# async def get_page(browser, url):
+#     page = await browser.newPage()
+#     await page.goto(url)
+#     return page
+    
+# async def web_auto():
+#     if my_browser == Null:
+#         await get_browser()
+#     for agency in agencies:
+#         print("agency")
+#         page = await get_page(my_browser, "https://securereg3.prometric.com/landing.aspx?prg=STEP1")
+#         selector_str = "select[id='masterPage_cphPageBody_ddlCountry']"
+#         # option = (await page.xpath("//select[@id='masterPage_cphPageBody_ddlCountry']/option[text()='CHINA']"))[0]
+#         # value = await (await option.getProperty('value'))
+#         # await page.select('#selectId', value);
+        
+#         await page.select("select[id='masterPage_cphPageBody_ddlCountry']", "CHN")
+#         await page.waitFor(30000)
+        
+
+
 proxies_file = open('proxies.txt', 'r') 
 if __name__ == '__main__':
     status_initialize()
     get_state_list()
     get_proxies_list()
+    # agencies = []
+    # agencies.append(Agency("111"))
+    # agencies.append(Agency("222"))
+    
+    # temp = ""
+    # temp.name = "aa" 
+    # temp.user = user
+    # dates = temp.user["dates"].split(",")
+    # for i in range(len(dates)):
+    #     dd_elem = dates[i].split("-")
+    #     dates[i] = dd_elem[2] + dd_elem[1] + dd_elem[0]
+    #     print("############################################")
+    # dates.sort()
+    # temp.user["dates"] = dates
+    
+    # agencies.append(Agency("222"))     
+    # loop = asyncio.get_event_loop()
+    # result = loop.run_until_complete(web_auto())
+    # time.sleep(5)
+    # agencies.clear()
+    # agencies.append(Agency("333"))
+    # # agencies.append(Agency("444"))
+    # result = loop.run_until_complete(web_auto())
+    
+    
     app.run(host='0.0.0.0', debug=True)
+    
