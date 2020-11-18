@@ -9,7 +9,7 @@ from flask_datepicker import datepicker
 from flask_sqlalchemy import SQLAlchemy
 from flask_mysqldb import MySQL
 import json
-from proxy import MyThread, proxy_status, proxies_list, my_browser
+from proxy_origin import MyThread, proxy_status, proxies_list, my_browser
 from proxy_2 import MyThread_2, user_list
 from sqlalchemy_serializer import SerializerMixin
 import requests

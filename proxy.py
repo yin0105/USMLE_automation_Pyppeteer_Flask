@@ -71,12 +71,10 @@ async def work(browser, exam):
 
                     elem = await page.querySelector("span[class='bodyTitles']") 
                     text = await page.evaluate('(elem) => elem.textContent', elem)
-                    print("text = " + text)
                     if text.find("The page cannot be displayed") > -1 :
                         # my_logging(self.name, "Because this page cannot displayed, other proxy will start.")              
                         print("The page cannot be displayed")
                         raise Exception("cannot_displayed")
-                    print("1")
                     await page.waitFor(5000)
                     site_index = 0
                     # # pprint.pprint(location)
@@ -88,9 +86,7 @@ async def work(browser, exam):
                     #     break
 
                     await page.focus('#txtSearch')
-                    print("2")
                     await page.keyboard.type(location["l"])
-                    print("3")
                     await page.waitFor(2000)
                     # elem = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "txtSearch")))
                     # ######## break ##############
@@ -103,11 +99,250 @@ async def work(browser, exam):
                     # time.sleep(2)
 
                     await page.click("#btnSearch")
-                    await page.waitFor(5000)
+                    await page.waitFor(10000)
 
                     # elem, f = find_elem(False, browser, browser, "//*[@id='btnSearch']")
                     # if f == False : raise Exception("Not found element")
                     # elem.click()
+
+
+                    # Confirm testcenterselection.aspx page
+                    elem = await page.querySelector("#masterPage_cphPageBody_TCS_Desc1") 
+                    text = await page.evaluate('(elem) => elem.textContent', elem)
+                    if text.find("To find the closest location") < 0 :
+                        # my_logging(self.name, "Because this page cannot displayed, other proxy will start.")              
+                        print("goto redirected")
+                        raise Exception("redirected")
+                    else: 
+                        print("no redirected")
+
+                    # elem, f = find_elem(False, browser, browser, "//*[@id='masterPage_cphPageBody_TCS_Desc1']")
+                    # if f == False : raise Exception("Not found element")
+                    # elem = elem.text
+                    # print(elem)
+                    # if elem.find("To find the closest location") < 0 :
+                    #     print("goto redirected")
+                    #     my_logging(self.name, "Because this page is redirected, other proxy will start.") 
+                    #     raise Exception("redirected")
+                    # else: 
+                    #     print("no redirected")
+
+                    elems = await page.xpath("//tr[contains(@class,'site_row')]") 
+                    print("#############")
+
+                    # elems, f = find_elem(True, browser, browser, "//tr[contains(@class,'site_row')]")
+                    # if f == False : raise Exception("Not found element")
+                    # print("#############")
+                    # my_logging(self.name, "Center List")
+
+                    # Logging Center ID, Name
+                    print("len = " + str(len(elems)))
+                    # for i in range(site_index, len(elems)):
+                    #     print(i)
+                    #     elem_right, f = find_elem(False, browser, elems[i], ".//td[@class='site_row_right']")
+                    #     if f == False : raise Exception("Not found element")
+                    #     center_id, f = find_elem(False, browser, elems[i], ".//td[@class='site_row_left']")
+                    #     if f == False : raise Exception("Not found element")
+                    #     center_id = center_id.text.splitlines()[0].split(":")[0].strip()
+                    #     print("Center_id = " + center_id)
+                    #     my_logging(self.name, "[Center] " + center_id)
+
+                    # my_logging(self.name, "Searching ...")
+
+                    # ######## break ##############
+                    # if proxy_status[self.name] == 0: 
+                    #     browser.close()
+                    #     break
+                    # for i in range(site_index, len(elems)):
+                    #     elem_right, f = find_elem(False, browser, elems[i], ".//td[@class='site_row_right']")
+                    #     if f == False : raise Exception("Not found element")
+                    #     center_id, f = find_elem(False, browser, elems[i], ".//td[@class='site_row_left']")
+                    #     if f == False : raise Exception("Not found element")
+                    #     center_id = center_id.text.splitlines()[0].split(":")[0].strip()
+                    #     elem_position, f = find_elem(False, browser, elems[i], ".//td[@class='site_row_left']")
+                    #     if f == False : raise Exception("Not found element")
+                    #     elem_position = " ".join(elem_position.text.splitlines())[:-2]
+
+                    #     # condition C:
+                    #     if location["c"] != "":
+                    #         if center_id != location["c"]:
+                    #             continue
+                    #     # Logging Center ID, Name
+                    #     my_logging(self.name, "[Center] " + center_id)
+                    #     elem_availability, f = find_elem(True, browser, elem_right, ".//a")
+                    #     if f == False : raise Exception("Not found elem_availability")
+                    #     elem_availability = elem_availability[0]
+                    #     elem_availability.click()
+
+                    #     ######## break ##############
+                    #     if proxy_status[self.name] == 0: 
+                    #         browser.close()
+                    #         break
+                    #     time.sleep(5)
+                    #     ######## break ##############
+                    #     if proxy_status[self.name] == 0: 
+                    #         browser.close()
+                    #         break
+                                
+                    #     pre_month_year = ""                            
+                                
+                    #     sended = False 
+                    #     for dd in self.user["dates"]:
+                    #         elem_selMonthYear, f = find_elem(False, browser, browser, "//*[@id='masterPage_cphPageBody_monthYearlist']")
+                    #         if f == False : raise Exception("Not found elem_selMonthYear")
+                    #         month_year = str(int(dd[4:6])) + " " + dd[:4]
+                    #         if month_year == pre_month_year:
+                    #             continue
+                    # # 30s delay
+                    #         if not sended and pre_month_year != "":
+                    #             time.sleep(5)
+                    #     ######## break ##############
+                    #             if proxy_status[self.name] == 0: 
+                    #                 browser.close()
+                    #                 break
+
+                    #         pre_month_year = month_year
+                    #         sended = False # Flag for 30s delay
+                                                                    
+                    #         if elem_selMonthYear.get_attribute("value") != month_year:
+                    #     # Select month_year in list
+                    #     # elem, f = find_elem(False, browser, browser, "//*[@id='masterPage_cphPageBody_monthYearlist']")
+                    #     # if f == False : raise Exception("Not found element")
+                    #             select = Select(elem_selMonthYear)                                    
+                    #             try:
+                    #                 select.select_by_value(month_year)                                        
+                    #             except:
+                    #                 print("except: select month")
+                    #                 continue
+                    #             elem_go_btn, f = find_elem(False, browser, browser, "//*[@id='masterPage_cphPageBody_btnGoCal']")
+                    #             if f == False : raise Exception("Not found elem_go_btn")
+                    #             elem_go_btn.click()
+                    #             time.sleep(2)
+                    #     ######## break ##############
+                    #             if proxy_status[self.name] == 0: 
+                    #                 browser.close()
+                    #                 break
+                    #         elem_dates, f = find_elem(True, browser, browser, "//td[@class='calContainer'][1]//td[@onclick]")
+                    #         if f == False : raise Exception("Not found elem_dates")
+                    #         msg = ""
+                    #         print("elem_dates")
+                    #         for exam_date in elem_dates:                                        
+                    #             exam_dd = int(exam_date.find_element_by_xpath(".//a").text)
+                    #             print(exam_dd)
+                    #             filtered_dates = [ddd for ddd in self.user["dates"] if (ddd[:6] == dd[:6] and exam_dd == int(ddd[6:]))]
+                    #             print("before")
+                    #             if len(filtered_dates) > 0:
+                    #                 print("ok")
+                    #         # SMS, email, call
+                    #                 onclick_str = exam_date.get_attribute("onclick")
+                    #                 onclick_str = onclick_str[onclick_str.find("(") + 1 : onclick_str.find(")")]
+                    #                 onclick_str_arr = onclick_str.split(", ")
+                    #                 onclick_str_date = onclick_str_arr[0][1:-1]
+                    #                 onclick_str_arr = onclick_str_arr[1][1:-1].split("|")
+                    #                 onclick_str_time = ", ".join(onclick_str_arr)[:-2]
+
+                    #                 msg += onclick_str_date + "  " + onclick_str_time + "\n"
+                                            
+                                            
+                    #                 sended = False
+                                    
+                    #     # print(sended)
+                    #     # if msg != "":
+                    #                 msg = os.environ.get('MESSAGE').replace("%NAME", self.name).replace("%DATE", onclick_str_date).replace("%TIME", onclick_str_time).replace("%LOCATION", elem_position)
+                    #                 print(msg)
+                    #         ######## break ##############
+                    #                 if proxy_status[self.name] == 0: 
+                    #                     browser.close()
+                    #                     break
+                                            
+                    #         # msg = "Exam Place :  " + elem_position + "\nExam Date & Time :  " + msg
+                    #                 my_logging(self.name, "[msg] " + msg)    
+                    #         # #################### email ##############################
+                    #                 try:
+                    #                     smtpObj = smtplib.SMTP('smtp.gmail.com: 587')#('smtp-mail.outlook.com', 587)
+                    #                 except Exception as e:
+                    #                     print(e)
+                    #                     my_logging(self.name, e)#'SMTP TSL connection failed.  trying SMTP SSL connection...\n' + e)
+                    #                     try:
+                    #                         smtpObj = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+                    #                     except Exception as e:
+                    #                         print(e)
+                    #                         my_logging(self.name, 'SMTP SSL connection failed.  S M T P   F A I L E D\n' + e)
+                    #                         raise Error('')
+                    #                 try:
+                    #                     smtpObj.ehlo()
+                    #                     smtpObj.starttls()
+                    #                     smtpObj.login(os.environ.get('EMAIL_ADDRESS'), os.environ.get('EMAIL_PASSWORD'))
+                    #                     smtpObj.sendmail(os.environ.get('EMAIL_ADDRESS'), self.user["email"], "Subject: Notification\n" + msg)
+                    #                     smtpObj.quit()
+                    #                     my_logging(self.name, 'email::  to:' + self.user["email"] + ' msg: ' + msg)
+                    #                     sended = True
+                    #                 except Exception as e:
+                    #                     print(e)
+                    #                     my_logging(self.name, 'SMTP Login failed.\n' + e)
+                                            
+                    #         ######## break ##############
+                    #                 if proxy_status[self.name] == 0: 
+                    #                     browser.close()
+                    #                     break
+                    #         # # ################### CALL ################################
+                    #                 print(twilio_phone_number)
+                    #                 print("---------------------------------------------")
+                    #                 print("from_=" + twilio_phone_number + ", " + " to=" + self.user["phone"] + ", " + "body=" + msg)
+                    #                 try:
+                    #                     response_call = client.calls.create(twiml='<Response><Say>' + msg + '</Say></Response>', from_=twilio_phone_number, to=self.user["phone"] )
+                    #                     if response_call.sid :
+                    #                         my_logging(self.name, 'CALL::  to:' + self.user["phone"] + ' msg: ' + msg)
+                    #                         sended = True
+                    #                 except  Exception as e:
+                    #                     print(e)
+                    #                     my_logging(self.name, e)
+                                                
+                    #                 print("----------------------------------------------")
+                    #         ######## break ##############
+                    #                 if proxy_status[self.name] == 0: 
+                    #                     browser.close()
+                    #                     break
+
+                    #         # # ################### SMS ################################
+                    #                 print(twilio_phone_number)
+                    #                 print("---------------------------------------------")
+                    #                 print("from_=" + twilio_phone_number + ", " + " to=" + self.user["phone"] + ", " + "body=" + msg)
+                    #                 try:
+                    #                     response_msg = client.messages.create(body=msg, from_=twilio_phone_number, to=self.user["phone"] )
+                    #                     if response_msg.sid :
+                    #                         my_logging(self.name, 'SMS::  to:' + self.user["phone"] + ' msg: ' + msg)
+                    #                         sended = True
+                    #                 except  Exception as e:
+                    #                     print(e)
+                    #                     my_logging(self.name, e)
+                                                
+                    #                 print("----------------------------------------------")
+
+                    #         ######## break ##############
+                    #                 if proxy_status[self.name] == 0: 
+                    #                     browser.close()
+                    #                     break
+                                            
+                    #                 if sended:
+                    #                     proxy_status[self.name] = 2
+                    #                     my_logging(self.name, "Message sent.") 
+                    #                     browser.close()
+                    #                     return
+
+                    #     time.sleep(5)
+                    #     ######## break ##############
+                    #     if proxy_status[self.name] == 0: 
+                    #         browser.close()
+                    #         break
+                    #     elem_go_btn = browser.find_element_by_id("masterPage_cphPageBody_btnBack")
+                    #     elem_go_btn.click()
+                    #     time.sleep(5)
+                    #     ######## break ##############
+                    #     if proxy_status[self.name] == 0: 
+                    #         browser.close()
+                    #         break
+                    #     break
 
                     
                     elem = await page.querySelector("span[class='bodyTitles']") 
