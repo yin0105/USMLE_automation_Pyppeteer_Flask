@@ -53,13 +53,13 @@ async def work(browser, exam):
 
         try:
             await page.click("#masterPage_cphPageBody_btnNext")
-            await page.waitFor(3000)
+            await page.waitFor(5000)
         except:
             pass
 
         try:
             await page.click("img[alt='Search for available seats']")
-            await page.waitFor(5000)
+            await page.waitFor(10000)
         except:
             print("img error")
 
@@ -70,12 +70,14 @@ async def work(browser, exam):
                     # if time.perf_counter() - start_time >= 1800: break  # 30 minutes - replace proxy
 
                     elem = await page.querySelector("span[class='bodyTitles']") 
+                    print("1")
                     text = await page.evaluate('(elem) => elem.textContent', elem)
                     if text.find("The page cannot be displayed") > -1 :
                         # my_logging(self.name, "Because this page cannot displayed, other proxy will start.")              
                         print("The page cannot be displayed")
                         raise Exception("cannot_displayed")
-                    await page.waitFor(10000)
+                    print("2")
+                    await page.waitFor(15000)
                     site_index = 0
                     # # pprint.pprint(location)
                     # my_logging(self.name, "location : " + location["l"] + " , center_number : " + location["c"])
@@ -183,9 +185,8 @@ async def work(browser, exam):
                                 continue
                         # Logging Center ID, Name
                         print("OK")
-                        elem_availability = await elems[i].querySelector("a")
-                        print("1")
-                        await elem_availability[0].click()
+                        elem_availability = await elem_right.querySelector("a")
+                        await elem_availability.click()
                         await page.waitFor(5000)
                     #     my_logging(self.name, "[Center] " + center_id)
                     #     elem_availability, f = find_elem(True, browser, elem_right, ".//a")
@@ -203,10 +204,10 @@ async def work(browser, exam):
                     #         browser.close()
                     #         break
                                 
-                    #     pre_month_year = ""                            
+                        pre_month_year = ""                            
                                 
-                    #     sended = False 
-                    #     for dd in self.user["dates"]:
+                        sended = False 
+                        for dd in user["dates"]:
                     #         elem_selMonthYear, f = find_elem(False, browser, browser, "//*[@id='masterPage_cphPageBody_monthYearlist']")
                     #         if f == False : raise Exception("Not found elem_selMonthYear")
                     #         month_year = str(int(dd[4:6])) + " " + dd[:4]
@@ -363,7 +364,7 @@ async def work(browser, exam):
                     #         break
                     #     break
 
-                    await page.waitFor(50000)
+                        await page.waitFor(50000)
                     elem = await page.querySelector("span[class='bodyTitles']") 
                     text = await page.evaluate('(elem) => elem.textContent', elem)
                     print("text = " + text)
