@@ -75,7 +75,7 @@ async def work(browser, exam):
                         # my_logging(self.name, "Because this page cannot displayed, other proxy will start.")              
                         print("The page cannot be displayed")
                         raise Exception("cannot_displayed")
-                    await page.waitFor(5000)
+                    await page.waitFor(10000)
                     site_index = 0
                     # # pprint.pprint(location)
                     # my_logging(self.name, "location : " + location["l"] + " , center_number : " + location["c"])
@@ -137,8 +137,13 @@ async def work(browser, exam):
 
                     # Logging Center ID, Name
                     print("len = " + str(len(elems)))
-                    # for i in range(site_index, len(elems)):
-                    #     print(i)
+                    for i in range(site_index, len(elems)):                        
+                        elem_right = await elems[i].querySelector("td[class='site_row_right']") 
+                        center_id = await elems[i].querySelector("td[class='site_row_left']") 
+                        center_id = await page.evaluate('(center_id) => center_id.textContent', center_id)
+                        center_id = center_id.splitlines()[0].split(":")[0].strip()
+                        print("i = " + str(i) + ",  Center_id = " + center_id)
+                    
                     #     elem_right, f = find_elem(False, browser, elems[i], ".//td[@class='site_row_right']")
                     #     if f == False : raise Exception("Not found element")
                     #     center_id, f = find_elem(False, browser, elems[i], ".//td[@class='site_row_left']")
@@ -153,21 +158,35 @@ async def work(browser, exam):
                     # if proxy_status[self.name] == 0: 
                     #     browser.close()
                     #     break
-                    # for i in range(site_index, len(elems)):
+                    for i in range(site_index, len(elems)):
+                        elem_right = await elems[i].querySelector("td[class='site_row_right']") 
+                        center_id = await elems[i].querySelector("td[class='site_row_left']") 
+                        center_id = await page.evaluate('(center_id) => center_id.textContent', center_id)
+                        center_id = center_id.splitlines()[0].split(":")[0].strip()
+                        print("i = " + str(i) + ",  Center_id = " + center_id)
                     #     elem_right, f = find_elem(False, browser, elems[i], ".//td[@class='site_row_right']")
                     #     if f == False : raise Exception("Not found element")
                     #     center_id, f = find_elem(False, browser, elems[i], ".//td[@class='site_row_left']")
                     #     if f == False : raise Exception("Not found element")
                     #     center_id = center_id.text.splitlines()[0].split(":")[0].strip()
+                        elem_position = await elems[i].querySelector("td[class='site_row_left']")
+                        elem_position = await page.evaluate('(elem_position) => elem_position.textContent', elem_position) 
+                        elem_position = " ".join(elem_position.splitlines())[:-2]
                     #     elem_position, f = find_elem(False, browser, elems[i], ".//td[@class='site_row_left']")
                     #     if f == False : raise Exception("Not found element")
                     #     elem_position = " ".join(elem_position.text.splitlines())[:-2]
 
-                    #     # condition C:
-                    #     if location["c"] != "":
-                    #         if center_id != location["c"]:
-                    #             continue
-                    #     # Logging Center ID, Name
+                        # condition C:
+                        print("location = " + str(location["c"]) + ", center_id = " + str(center_id) + ",  position = " + elem_position)
+                        if location["c"] != "":
+                            if location["c"].find(center_id) < 0:
+                                continue
+                        # Logging Center ID, Name
+                        print("OK")
+                        elem_availability = await elems[i].querySelector("a")
+                        print("1")
+                        await elem_availability[0].click()
+                        await page.waitFor(5000)
                     #     my_logging(self.name, "[Center] " + center_id)
                     #     elem_availability, f = find_elem(True, browser, elem_right, ".//a")
                     #     if f == False : raise Exception("Not found elem_availability")
@@ -344,7 +363,7 @@ async def work(browser, exam):
                     #         break
                     #     break
 
-                    
+                    await page.waitFor(50000)
                     elem = await page.querySelector("span[class='bodyTitles']") 
                     text = await page.evaluate('(elem) => elem.textContent', elem)
                     print("text = " + text)
