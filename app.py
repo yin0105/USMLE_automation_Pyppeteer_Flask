@@ -184,8 +184,8 @@ def edit_user():
             db.session.commit()
             flash('Record was successfully updated')
             return redirect(url_for('admin'))   
-    else:
-        user_ = User.query.filter_by(id=request.form['user_id']).first()
+    # else:
+    user_ = User.query.filter_by(id=request.form['user_id']).first()
     user_.locations = json.loads(user_.locations)
     return render_template('user.html', form=form, user=user_)
 

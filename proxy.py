@@ -38,7 +38,7 @@ async def work(browser, exam):
     page = await get_page(browser, exam)
     for user_id, user in users_category[exam].items():        
         # Select Country
-        selector_str = "select[id='masterPage_cphPageBody_ddlCountry']"
+        # selector_str = "select[id='masterPage_cphPageBody_ddlCountry']"
         option = (await page.xpath("//select[@id='masterPage_cphPageBody_ddlCountry']/option[text()='" + user['country'] + "']"))[0]
         value = await (await option.getProperty('value')).jsonValue()
         await page.select('#masterPage_cphPageBody_ddlCountry', value) 
@@ -70,13 +70,11 @@ async def work(browser, exam):
                     # if time.perf_counter() - start_time >= 1800: break  # 30 minutes - replace proxy
 
                     elem = await page.querySelector("span[class='bodyTitles']") 
-                    print("1")
                     text = await page.evaluate('(elem) => elem.textContent', elem)
                     if text.find("The page cannot be displayed") > -1 :
                         # my_logging(self.name, "Because this page cannot displayed, other proxy will start.")              
                         print("The page cannot be displayed")
                         raise Exception("cannot_displayed")
-                    print("2")
                     await page.waitFor(15000)
                     site_index = 0
                     # # pprint.pprint(location)
@@ -205,29 +203,42 @@ async def work(browser, exam):
                     #         break
                                 
                         pre_month_year = ""                            
-                                
-                        sended = False 
-                        for dd in user["dates"]:
+                        sended = False                         
+                        for dd in user["dates"].split(","):
+                            print("date: " + dd)
+                            elem_selMonthYear = await page.querySelector("#masterPage_cphPageBody_monthYearlist") 
+                            month_year = str(int(dd[3:5])) + " " + dd[6:]
+                            if month_year == pre_month_year:
+                                continue
                     #         elem_selMonthYear, f = find_elem(False, browser, browser, "//*[@id='masterPage_cphPageBody_monthYearlist']")
                     #         if f == False : raise Exception("Not found elem_selMonthYear")
                     #         month_year = str(int(dd[4:6])) + " " + dd[:4]
                     #         if month_year == pre_month_year:
                     #             continue
-                    # # 30s delay
-                    #         if not sended and pre_month_year != "":
-                    #             time.sleep(5)
+                    # 30s delay
+                            if not sended and pre_month_year != "":
+                                await page.waitFor(5000)
                     #     ######## break ##############
                     #             if proxy_status[self.name] == 0: 
                     #                 browser.close()
                     #                 break
 
-                    #         pre_month_year = month_year
-                    #         sended = False # Flag for 30s delay
-                                                                    
-                    #         if elem_selMonthYear.get_attribute("value") != month_year:
-                    #     # Select month_year in list
+                            pre_month_year = month_year
+                            sended = False # Flag for 30s delay
+                            print("5")                                 
+                            # if await page.evaluate('elem_selMonthYear.getAttribute("value")') != month_year:
+                            if await ( await elem_selMonthYear.getProperty( 'value' ) ).jsonValue() != month_year:
+                                print("6")
+
+                                
+                                
+                        # Select month_year in list
                     #     # elem, f = find_elem(False, browser, browser, "//*[@id='masterPage_cphPageBody_monthYearlist']")
                     #     # if f == False : raise Exception("Not found element")
+                                # option = (await elem_selMonthYear.xpath("/option[text()='" + month_year + "']"))[0]
+                                # value = await (await option.getProperty('value')).jsonValue()
+                                await page.select('#masterPage_cphPageBody_monthYearlist', month_year)
+                                print("7")
                     #             select = Select(elem_selMonthYear)                                    
                     #             try:
                     #                 select.select_by_value(month_year)                                        
