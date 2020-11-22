@@ -6,6 +6,7 @@ from pyppeteer import launch
 import requests
 import time
 import json
+from os import environ
 
 users = {}
 users_category = []
@@ -204,10 +205,12 @@ async def work(browser, exam):
                                 
                         pre_month_year = ""                            
                         sended = False                         
-                        for dd in user["dates"].split(","):
+                        for dd in user["dates"]:
                             print("date: " + dd)
                             elem_selMonthYear = await page.querySelector("#masterPage_cphPageBody_monthYearlist") 
-                            month_year = str(int(dd[3:5])) + " " + dd[6:]
+                            month_year = str(int(dd[4:6])) + " " + dd[:4]
+                            print("monty_year = " + str(month_year))
+                            print("pre_month_year = " + str(pre_month_year))
                             if month_year == pre_month_year:
                                 continue
                     #         elem_selMonthYear, f = find_elem(False, browser, browser, "//*[@id='masterPage_cphPageBody_monthYearlist']")
@@ -245,6 +248,8 @@ async def work(browser, exam):
                     #             except:
                     #                 print("except: select month")
                     #                 continue
+                                await page.click("#masterPage_cphPageBody_btnGoCal")
+                                await page.waitFor(10000)
                     #             elem_go_btn, f = find_elem(False, browser, browser, "//*[@id='masterPage_cphPageBody_btnGoCal']")
                     #             if f == False : raise Exception("Not found elem_go_btn")
                     #             elem_go_btn.click()
@@ -253,34 +258,55 @@ async def work(browser, exam):
                     #             if proxy_status[self.name] == 0: 
                     #                 browser.close()
                     #                 break
+                            print("8")
+                            elem_dates = []
+                            try:
+                                elem_dates = await page.xpath("//td[@class='calContainer'][1]//td[@onclick]") 
+                            except:
+                                print("9")
                     #         elem_dates, f = find_elem(True, browser, browser, "//td[@class='calContainer'][1]//td[@onclick]")
                     #         if f == False : raise Exception("Not found elem_dates")
-                    #         msg = ""
-                    #         print("elem_dates")
-                    #         for exam_date in elem_dates:                                        
+                            msg = ""
+                            print(elem_dates)
+                            print("elem_dates : " + str(len(elem_dates)))
+                            # if len(elem_dates) == 1: elem_dates = [elem_dates]
+                            for exam_date in elem_dates:   
+                                # print("exam_date = " + exam_date)
+                                print("10")
+                                exam_dd = await exam_date.querySelector("a") 
+                                print("11")
+                                text = await page.evaluate('(exam_dd) => exam_dd.textContent', exam_dd)  
+                                print("12")
+                                exam_dd = int(text)                                   
                     #             exam_dd = int(exam_date.find_element_by_xpath(".//a").text)
-                    #             print(exam_dd)
-                    #             filtered_dates = [ddd for ddd in self.user["dates"] if (ddd[:6] == dd[:6] and exam_dd == int(ddd[6:]))]
-                    #             print("before")
-                    #             if len(filtered_dates) > 0:
-                    #                 print("ok")
-                    #         # SMS, email, call
-                    #                 onclick_str = exam_date.get_attribute("onclick")
-                    #                 onclick_str = onclick_str[onclick_str.find("(") + 1 : onclick_str.find(")")]
-                    #                 onclick_str_arr = onclick_str.split(", ")
-                    #                 onclick_str_date = onclick_str_arr[0][1:-1]
-                    #                 onclick_str_arr = onclick_str_arr[1][1:-1].split("|")
-                    #                 onclick_str_time = ", ".join(onclick_str_arr)[:-2]
+                                print("day = " + str(exam_dd))
+                                filtered_dates = [ddd for ddd in user["dates"] if (ddd[:6] == dd[:6] and exam_dd == int(ddd[6:]))]
+                                print("before")
+                                if len(filtered_dates) > 0:
+                                    print("ok")
+                            # SMS, email, call
+                                    onclick_str = await ( await exam_date.getProperty( 'onclick' ) ).jsonValue()
+                                    print("13")
+                                    onclick_str = onclick_str[onclick_str.find("(") + 1 : onclick_str.find(")")]
+                                    print("14")
+                                    onclick_str_arr = onclick_str.split(", ")
+                                    print("15")
+                                    onclick_str_date = onclick_str_arr[0][1:-1]
+                                    print("16")
+                                    onclick_str_arr = onclick_str_arr[1][1:-1].split("|")
+                                    print("17")
+                                    onclick_str_time = ", ".join(onclick_str_arr)[:-2]
 
-                    #                 msg += onclick_str_date + "  " + onclick_str_time + "\n"
+                                    msg += onclick_str_date + "  " + onclick_str_time + "\n"
                                             
                                             
-                    #                 sended = False
+                                    sended = False
                                     
-                    #     # print(sended)
-                    #     # if msg != "":
-                    #                 msg = os.environ.get('MESSAGE').replace("%NAME", self.name).replace("%DATE", onclick_str_date).replace("%TIME", onclick_str_time).replace("%LOCATION", elem_position)
-                    #                 print(msg)
+                        # print(sended)
+                        # if msg != "":
+                                    print(msg)
+                                    msg = environ.get('MESSAGE').replace("%NAME", user_id).replace("%DATE", onclick_str_date).replace("%TIME", onclick_str_time).replace("%LOCATION", elem_position)
+                                    print("msg = " + msg)
                     #         ######## break ##############
                     #                 if proxy_status[self.name] == 0: 
                     #                     browser.close()
@@ -409,6 +435,13 @@ async def main():
         users_category.append({})
         if len(users) > 0 :
             for key, user in users.items():
+                dates = user["dates"].split(",")
+                for i in range(len(dates)):
+                    dd_elem = dates[i].split("-")
+                    dates[i] = dd_elem[2] + dd_elem[1] + dd_elem[0]
+                dates.sort()
+                user["dates"] = dates
+        
                 users_category[user["exam"]][key] = user
                 # print(user)
             for i in range(3):
